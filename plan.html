@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <title>Сalendar</title>
+        <link rel="stylesheet" href="./style.css">
+    </head>
+    <body class="schedule-page">
+        <header class="header">
+            <div class="nav">
+                <div class="container-wide">
+                    <div class="row space-beetween">
+                        <div class="logo">BOOKSclub</div>
+                        <div class="nav-menu">
+                            <ul>
+                                <li><a href="index.html">Главная</a></li>
+                                <li><a href="information.html">Информация</a></li>
+                                <li><a href="schedule.html">Расписание</a></li>
+                        </div>
+                        <a href="#" class="login">Кабинет</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <main>
+            <div class="article-img">
+                <div class="calendar-wrapper">
+    <div class="calendar-double">
+        <div class="header-note">
+            📖 <span>Календарь литературных пометок</span> — Февраль / Март 2026
+        </div>
+        <div class="two-months">
+            <!-- Февраль 2026 -->
+            <div class="month-card">
+                <div class="month-title">Февраль 2026</div>
+                <div class="weekdays">
+                    <div class="weekday">Пн</div><div class="weekday">Вт</div><div class="weekday">Ср</div>
+                    <div class="weekday">Чт</div><div class="weekday">Пт</div><div class="weekday">Сб</div>
+                    <div class="weekday">Вс</div>
+                </div>
+                <div class="days-grid" id="february-grid"></div>
+            </div>
+
+            <!-- Март 2026 -->
+            <div class="month-card">
+                <div class="month-title">Март 2026</div>
+                <div class="weekdays">
+                    <div class="weekday">Пн</div><div class="weekday">Вт</div><div class="weekday">Ср</div>
+                    <div class="weekday">Чт</div><div class="weekday">Пт</div><div class="weekday">Сб</div>
+                    <div class="weekday">Вс</div>
+                </div>
+                <div class="days-grid" id="march-grid"></div>
+            </div>
+        </div>
+        <div class="footer-legend">
+            <div class="legend-item"><strong>Отмеченные события</strong></div>
+            <div class="legend-item"><span class="legend-badge"></span> «БЕСЫ» Достоевский Ф.М.</div>
+            <div class="legend-item"><span class="legend-badge bronte-style"></span> «ДЖЕЙН ЭЙР» Бронте Ш.</div>
+            <div class="legend-item"><span class="legend-badge" style="background:#faeecb;"></span> «ЛИГЕЯ» по Э.А.ПО</div>
+            <div class="legend-item"> Поэтические / прозаические пометки</div>
+        </div>
+    </div>
+</div>
+<div class="booking-sidebar">
+            <div class="form-wrapper">
+                <h2 class="form-title"> Записаться на встречу</h2>
+                <form id="bookingForm" class="booking-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <input type="text" id="name" placeholder=" Имя" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" id="phone" placeholder=" +7 (999) 123-45-67" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="email" placeholder=" Email" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <select id="date" required>
+                                <option value=""> Дата</option>
+                                <option value="2026-03-06">6 марта, Пт</option>
+                                <option value="2026-03-20">20 марта, Ср</option>
+                                <option value="2026-03-31">31 марта, Пт</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select id="time" required>
+                                <option value=""> Время</option>
+                                <option value="18:00">18:00</option>
+                                <option value="19:00">19:00</option>
+                                <option value="20:00">20:00</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="comment" placeholder=" Комментарий " maxlength="200"></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        Записаться на встречу
+                    </button>
+                </form>
+                <div id="successMessage" class="success-message" style="display: none;">
+                    <div class="success-icon">✅</div>
+                    <p>Запись создана!</p>
+                    <p>Подтверждение придет на email</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('bookingForm');
+    const successMessage = document.getElementById('successMessage');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        form.style.display = 'none';
+        successMessage.style.display = 'flex';
+        
+        setTimeout(() => {
+            form.reset();
+            form.style.display = 'block';
+            successMessage.style.display = 'none';
+        }, 5000);
+    });
+});
+
+(function() {
+    const marchEvents = {
+        "2026-03-06": ["«ЛИГЕЯ» ПО Э.А."],
+        "2026-03-20": ["«ДЖЕЙН ЭЙР» Бронте Ш."]
+    };
+    const febEvents = {};
+
+    function buildMonthCalendar(year, month, eventsMap, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = '';
+        
+        const firstDayOfMonth = new Date(year, month, 1);
+        let startWeekday = firstDayOfMonth.getDay();
+        let offset = (startWeekday === 0) ? 6 : startWeekday - 1;
+        
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const totalCells = Math.ceil((offset + daysInMonth) / 7) * 7;
+        
+        for (let i = 0; i < totalCells; i++) {
+            const cellDateNum = i - offset + 1;
+            const isValid = (cellDateNum >= 1 && cellDateNum <= daysInMonth);
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'day-cell';
+            if (!isValid) dayDiv.classList.add('empty');
+            
+            const numberSpan = document.createElement('div');
+            numberSpan.className = 'day-number';
+            numberSpan.textContent = isValid ? cellDateNum : '';
+            dayDiv.appendChild(numberSpan);
+            
+            if (isValid) {
+                const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(cellDateNum).padStart(2,'0')}`;
+                const eventsArray = eventsMap[dateKey];
+                if (eventsArray && eventsArray.length) {
+                    eventsArray.forEach(evText => {
+                        const eventSpan = document.createElement('div');
+                        eventSpan.className = 'event-text';
+                        eventSpan.textContent = evText;
+                        dayDiv.appendChild(eventSpan);
+                    });
+                }
+            }
+            container.appendChild(dayDiv);
+        }
+    }
+    
+    buildMonthCalendar(2026, 1, febEvents, 'february-grid');
+    buildMonthCalendar(2026, 2, marchEvents, 'march-grid');
+})();
+</script>
+        </main>
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+
+                    <div class="footer-col">
+                        <div class="footer-logo">BOOKSclub</div>
+                        <p class="footer-description">Книжный клуб для тех, кто любит читать и обсуждать. Встречи, обсуждения, новые знакомства и хорошие книги.</p>
+                    </div>
+                    
+                    <div class="footer-col">
+                        <h3 class="footer-title">Навигация</h3>
+                        <ul class="footer-links">
+                            <li><a href="#">Главная</a></li>
+                            <li><a href="#">Информация</a></li>
+                            <li><a href="#">Расписание</a></li>
+                            <li><a href="#">Личный кабинет</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-col">
+                        <h3 class="footer-title">Контакты</h3>
+                        <ul class="footer-contacts">
+                            <li> club@booksclub.ru</li>
+                            <li> +7 (999) 123-45-67</li>
+                            <li> ул. Книжная, д. 10</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-col">
+                        <h3 class="footer-title">Мы в соцсетях</h3>
+                        <div class="social-links">
+                            <a href="#" class="social-link">Telegram</a>
+                            <a href="#" class="social-link">VK</a>
+                            <a href="#" class="social-link">YouTube</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2025 BOOKSclub. Все права защищены.</p>
+                </div>
+            </div>
+        </footer>
+    </body>
