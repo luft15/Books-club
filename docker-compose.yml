@@ -1,0 +1,45 @@
+services:
+  db_booksclub:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./src/db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME} -h localhost -p 5432"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    container_name: db_booksclub 
+
+  backend_booksclub:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: db_booksclub
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      FLASK_ENV: development
+      FLASKDEBUG: 1
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/app
+      - /app/__pycache__
+    depends_on:
+      db_booksclub:
+        condition: service_healthy
+    restart: on-failure
+    working_dir: /app
+    container_name: backend_flask_booksclub
+
+volumes:
+  pgdata:

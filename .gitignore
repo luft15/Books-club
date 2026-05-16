@@ -1,0 +1,14 @@
+.vscode/
+.idea/
+*swp
+
+.env
+venv/
+
+__pycache__/
+node_modules/
+
+*.tmp
+*~
+*.doc
+*.docx
