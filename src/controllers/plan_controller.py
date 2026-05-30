@@ -1,12 +1,14 @@
 from flask import render_template, request, jsonify
+from injector import inject
 from app import app
-import re
 
 from models.event_model import EventModel
 from models.bookings_model import BookingModel
+from db.db import Database
 
 @app.route("/plan", methods=['GET', 'POST'])
-def plan():
+@inject  #
+def plan(event_model: EventModel, db: Database):
     if request.method == "POST":
         name = request.form.get('user_name', "").strip()
         phone = request.form.get('user_phone', "").strip()
@@ -14,31 +16,45 @@ def plan():
         date_str = request.form.get('date', '').strip()
         time_slot = request.form.get('time_slot', "").strip()
         comment = request.form.get('comment', "").strip()
+        print(f'- получены данные: {name}, {phone}, {email}, {date_str}, {time_slot}, {comment}')
 
-        if len(name) < 3:
-            return jsonify({"status": "error", "errors": "имя должно содержать хотя бы 3 символа"}), 400
-        if not re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
-            return jsonify({"status": "error", "errors": "Неверный email"}), 400
-        if not date_str:
-            return jsonify({"status": "error", "errors": "Выберите дату встречи"}), 400
-
-        event = EventModel.get_by_date(date_str)
-        if not event:
+        event = event_model.get_by_date(date_str)
+        if event is None:
             return jsonify({"status": "error", "errors": "Событие на эту дату не найдено!"}), 404
-
-        BookingModel.create(
-            event_id=event['id'],
-            user_name=name,
-            user_phone=phone,
-            user_email=email,
-            time_slot=time_slot,
-            comment=comment
-        )
-        print(f'- запись сохранена: {name} на {date_str} {time_slot}')
-        return jsonify({"status": "ok"})
+        print("Событие:", event)
+              
+        try:
+            booking_model = BookingModel(
+                db=db,
+                event_id=None,
+                user_name=name,
+                user_email=email,
+                user_phone=phone or None,
+                time_slot=time_slot or None,
+                comment=comment or None
+            )
+            print("Объект бронирования создан")
+        except ValueError as e:
+            return jsonify({'status': 'error', 'errors': str(e)}), 400
+        
+        try:
+            event = EventModel.get_by_date(date_str)
+            if event is None:
+                return jsonify({"status": "error", "errors": "Событие на эту дату не найдено!"}), 404
+            
+            booking_model.event_id = event.id
+        except Exception as e:
+            return jsonify({"status": "error", "errors": f"ошибка при поиске события: {str(e)}"}), 500
+        
+        if booking_model.save():
+            print(f'- запись сохранена: {name} на {date_str} {time_slot}')
+            return jsonify({"status": "ok"})
+        
+        else: 
+            return jsonify({"status": "error", "errors": "Не удалось сохранить бронирование"}), 500
 
     # GET-запрос
-    events = EventModel.get_all()
+    events = event_model.get_all()
     events_by_date = {}
     for ev in events:
         # Преобразуем дату в строку ISO
