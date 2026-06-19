@@ -1,0 +1,44 @@
+
+
+Table users {
+  id integer [primary key, increment]
+  username varchar(100) [unique, not null]
+  email varchar(200) [unique, not null]
+  hashed_password varchar(255) [not null]
+  full_name varchar(200) [null]
+  phone varchar(20) [null]
+  is_active boolean [default: true]
+  is_admin boolean [default: false]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [null]
+}
+
+Table books {
+  id integer [primary key, increment]
+  title text [not null]
+  author varchar(200) [null]
+  year integer [null]
+  created_at timestamp [default: `now()`]
+}
+
+Table events {
+  id integer [primary key, increment]
+  book_id integer [not null]
+  event_date date [not null]
+  description text [null]
+  max_participants integer [default: 20]
+  created_at timestamp [default: `now()`]
+}
+
+Table bookings {
+  id integer [primary key, increment]
+  event_id integer [not null]
+  user_id integer [not null]
+  time_slot time [null]
+  comment text [null]
+  created_at timestamp [default: `now()`]
+}
+
+Ref: bookings.event_id > events.id[on delete cascade]
+Ref: bookings.user_id > users.id[on delete cascade]
+Ref: events.book_id > books.id[on delete cascade]
