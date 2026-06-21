@@ -1,4 +1,3 @@
-# backend/app/api/book_club_router.pyfrom fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -11,16 +10,16 @@ from app.schemas import (
 from app.services.book_service import BookService
 from app.services.event_service import EventService
 from app.services.booking_service import BookingService
-
+from app.services.stats_service import StatsService
 from app.core.dependencies import (
     get_current_user,
     get_current_admin_user,
     get_book_service,
     get_event_service,
-    get_booking_service
+    get_booking_service,
+    get_stats_service
 )
 from app.models.user_model import User_model
-from app.core.database import get_db
 
 router = APIRouter(prefix="/api/book-club", tags=["book-club"])
 
@@ -60,13 +59,12 @@ def get_event_bookings(event_id: int, event_service: EventService = Depends(get_
     if not event:
         raise HTTPException(status_code=404, detail="Событие не найдено")
     bookings = event_service.get_bookings_for_event(event_id)
-    # добавим user_name и user_email
     for b in bookings:
         b.user_name = b.user.full_name or b.user.username
         b.user_email = b.user.email
     return bookings
 
-# защищенные (требуется авторизация)
+# защищенные
 @router.post("/bookings", response_model=BookingResponse)
 def create_booking(
     booking_data: BookingCreate,
@@ -142,35 +140,7 @@ def create_book(
 @router.get("/admin/stats", response_model=AdminStats)
 def get_admin_stats(
     current_user: User_model = Depends(get_current_admin_user),
-    db: Session = Depends(get_db)
+    stats_service: StatsService = Depends(get_stats_service)
 ):
-    from sqlalchemy import func, desc
-    from app.models import User_model, Book_model, Event_model, Booking_model
-    total_users = db.query(User_model).count()
-    total_books = db.query(Book_model).count()
-    total_events = db.query(Event_model).count()
-    total_bookings = db.query(Booking_model).count()
-
-    popular = db.query(
-        Event_model.id, Event_model.description, Event_model.event_date,
-        func.count(Booking_model.id).label("participants")
-    ).join(Booking_model, Booking_model.event_id == Event_model.id)\
-     .group_by(Event_model.id)\
-     .order_by(desc("participants"))\
-     .limit(5).all()
-
-    recent = db.query(
-        Booking_model.id, User_model.username, Event_model.description.label("event_name"), Booking_model.created_at
-    ).join(User_model, User_model.id == Booking_model.user_id)\
-     .join(Event_model, Event_model.id == Booking_model.event_id)\
-     .order_by(desc(Booking_model.created_at))\
-     .limit(10).all()
-
-    return AdminStats(
-        total_users=total_users,
-        total_books=total_books,
-        total_events=total_events,
-        total_bookings=total_bookings,
-        popular_events=[{"id": e.id, "description": e.description, "event_date": e.event_date, "participants": e.participants} for e in popular],
-        recent_bookings=[{"id": b.id, "username": b.username, "event_name": b.event_name, "created_at": b.created_at} for b in recent]
-    )
+    stats = stats_service.get_stats()
+    return AdminStats(**stats)

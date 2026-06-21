@@ -52,7 +52,7 @@ const HomePage = () => {
 
     <div className="events-section">
       <div className="container">
-        <h2 style={{ color: 'white' }}>Ближайшие события</h2>
+        <h2 style={{ color: 'white' }}>Ближайшие события</h2>  {/* решила оставить */} 
         <div className="events-grid">
           {upcomingEvents.map(event => (
             <div key={event.id} className="event-card">

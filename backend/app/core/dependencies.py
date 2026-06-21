@@ -8,6 +8,7 @@ from app.models.user_model import User_model
 from app.services.book_service import BookService
 from app.services.event_service import EventService
 from app.services.booking_service import BookingService
+from app.services.stats_service import StatsService
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
@@ -43,3 +44,7 @@ def get_event_service(db: Session = Depends(get_db)) -> EventService:
 
 def get_booking_service(db: Session = Depends(get_db)) -> BookingService:
     return BookingService(db)
+
+def get_stats_service(db: Session = Depends(get_db)) -> StatsService:
+    return StatsService(db)
+

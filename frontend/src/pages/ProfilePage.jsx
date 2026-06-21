@@ -56,8 +56,8 @@ const ProfilePage = () => {
             }}>
               <div>
                 <h3 style={{ margin: '0 0 5px 0' }}>{booking.event?.book?.title || 'Событие'}</h3>
-                <p style={{ margin: '5px 0' }}>📅 {new Date(booking.event?.event_date).toLocaleDateString()}</p>
-                <p style={{ margin: '5px 0' }}>🕒 {booking.time_slot || 'время не указано'}</p>
+                <p style={{ margin: '5px 0' }}>{new Date(booking.event?.event_date).toLocaleDateString()}</p>
+                <p style={{ margin: '5px 0' }}>{booking.time_slot || 'время не указано'}</p>
                 {booking.comment && <p style={{ margin: '5px 0', fontStyle: 'italic' }}>Комментарий: {booking.comment}</p>}
               </div>
               <button

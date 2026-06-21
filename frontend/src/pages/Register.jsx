@@ -42,9 +42,7 @@ const Register = () => {
   };
 
   return (
-    <div className="fon1" style={{ minHeight: '100vh' }}>
-      {/* <Navigation /> */}
-      
+    <div className="fon1" style={{ minHeight: '100vh' }}>      
       <div style={{
         display: 'flex',
         justifyContent: 'center',
@@ -63,7 +61,6 @@ const Register = () => {
           <h2 style={{ textAlign: 'center', marginBottom: '30px', color: '#2c3e50' }}>
             Регистрация в Книжном Клубе
           </h2>
-          
           {error && (
             <div style={{
               backgroundColor: '#fee',
@@ -75,7 +72,6 @@ const Register = () => {
               {error}
             </div>
           )}
-          
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
@@ -96,7 +92,6 @@ const Register = () => {
                 }}
               />
             </div>
-            
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
                 Email *
@@ -116,7 +111,6 @@ const Register = () => {
                 }}
               />
             </div>
-            
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
                 Пароль * (минимум 6 символов)
@@ -137,7 +131,6 @@ const Register = () => {
                 }}
               />
             </div>
-            
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
                 Полное имя
@@ -156,7 +149,6 @@ const Register = () => {
                 }}
               />
             </div>
-            
             <div style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
                 Телефон
@@ -175,7 +167,6 @@ const Register = () => {
                 }}
               />
             </div>
-            
             <button
               type="submit"
               disabled={loading}
@@ -194,14 +185,11 @@ const Register = () => {
               {loading ? 'Регистрация...' : 'Зарегистрироваться'}
             </button>
           </form>
-          
           <p style={{ marginTop: '20px', textAlign: 'center' }}>
             Уже есть аккаунт? <Link to="/login" style={{ color: '#3498db' }}>Войти</Link>
           </p>
         </div>
       </div>
-      
-      {/* <Footer /> */}
     </div>
   );
 };
